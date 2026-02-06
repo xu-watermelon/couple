@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: couple
+
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://localhost:3306/couple?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+
+# MyBatis Plus配置
+mybatis-plus:
+  mapper-locations: classpath:mapper/**/*.xml  # XML映射文件位置
+  type-aliases-package: com.xkb.couple.pojo.entity  # 实体类包路径
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 控制台打印SQL日志
+    map-underscore-to-camel-case: true  # 自动驼峰命名转换
+
+couple:
+  jwt:
+    secret: 123456
+    expiration: 3600  # 过期时间，单位：秒
