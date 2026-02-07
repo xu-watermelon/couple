@@ -19,6 +19,12 @@ public class User {
          */
         @TableId(type = IdType.AUTO)
         private Long id;
+
+        /**
+         * 昵称
+         */
+        @TableField("nickname")
+        private String nickname;
         /**
          * 用户名
          */
