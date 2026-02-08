@@ -60,4 +60,20 @@ public class LogDesensitizeUtil {
         String username = desensitizeUsername(parts[0]);
         return username + "@" + parts[1];
     }
-}
+
+        /**
+         * 处理token脱敏：保留首尾字符，中间用*替代
+         * 示例：eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyMzkwMjJ9.1234567890abcdef1234567890abcdef -> e******************************f
+         */
+        public static String desensitizeToken (String token){
+            if (StringUtils.isBlank(token)) {
+                return token;
+            }
+            int startIndex = token.indexOf(".") + 1;
+            int endIndex = token.lastIndexOf(".");
+            if (startIndex >= endIndex) {
+                return token;
+            }
+            return token.substring(0, startIndex) + "*".repeat(endIndex - startIndex) + token.substring(endIndex);
+        }
+    }

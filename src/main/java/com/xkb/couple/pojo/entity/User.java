@@ -56,11 +56,6 @@ public class User {
         @TableField("birthday")
         private LocalDateTime birthday;
         /**
-         * 手机号
-         */
-        @TableField("phone")
-        private String phone;
-        /**
          * 创建时间
          */
         @TableField("create_time")

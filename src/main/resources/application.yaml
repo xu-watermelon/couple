@@ -1,12 +1,16 @@
 spring:
   application:
     name: couple
+  # 导入敏感配置文件
+  config:
+    import: optional:classpath:application-dev.properties
 
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://localhost:3306/couple?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-    username: root
-    password: 1234
+    # 从application-secret.properties引用
+    url: ${spring.datasource.url}
+    username: ${spring.datasource.username}
+    password: ${spring.datasource.password}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 
@@ -20,5 +24,6 @@ mybatis-plus:
 
 couple:
   jwt:
-    secret: 123456
+    # 从application-secret.properties引用
+    secret: ${couple.jwt.secret}
     expiration: 3600  # 过期时间，单位：秒
