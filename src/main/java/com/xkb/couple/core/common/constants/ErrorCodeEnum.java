@@ -52,7 +52,14 @@ public enum ErrorCodeEnum {
      * 用户名或密码为空
 */
     USERNAME_OR_PASSWORD_EMPTY("1008", "用户名或密码为空"),
-    ;
+    /**
+     * 用户id为空
+     */
+    USER_ID_EMPTY("1009", "用户id为空"),
+    /**
+     * 参数校验失败
+     */
+    PARAMS_ERROR("1010", "参数校验失败");
 
     private final String code;
     private final String message;

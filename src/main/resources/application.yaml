@@ -26,4 +26,4 @@ couple:
   jwt:
     # 从application-secret.properties引用
     secret: ${couple.jwt.secret}
-    expiration: 3600  # 过期时间，单位：秒
+    expiration: 9999999999  # 过期时间，单位：秒

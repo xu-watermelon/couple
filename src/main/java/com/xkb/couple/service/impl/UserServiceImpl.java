@@ -2,10 +2,12 @@ package com.xkb.couple.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.xkb.couple.core.common.constants.ErrorCodeEnum;
+import com.xkb.couple.core.common.exception.BusinessException;
 import com.xkb.couple.core.common.resp.BaseResponse;
 import com.xkb.couple.core.constants.UserConstans;
 import com.xkb.couple.core.utils.JwtUtil;
 import com.xkb.couple.core.utils.LogDesensitizeUtil;
+import com.xkb.couple.core.utils.UserHolder;
 import com.xkb.couple.mapper.UserMapper;
 import com.xkb.couple.pojo.dto.LoginDTO;
 import com.xkb.couple.pojo.dto.RegisterDTO;
@@ -119,4 +121,43 @@ public class UserServiceImpl implements UserService {
 
 
     }
+
+
+    @Override
+    public BaseResponse<UserVO> getUserInfo(Long id) {
+        //1. 校验参数
+        if (id == null) {
+            log.info("用户查询失败(用户id为空)：id={}", id);
+            return BaseResponse.fail(ErrorCodeEnum.USER_ID_EMPTY);
+        }
+       Long userId = UserHolder.getUserId();
+        if (userId == null) {
+            log.info("用户查询失败(用户未登录)：id={}", id);
+            return BaseResponse.fail(ErrorCodeEnum.USER_NOT_LOGIN);
+        }
+        if (!userId.equals(id)) {
+            log.info("用户查询失败(用户无权限)：id={}", id);
+            throw  new BusinessException(ErrorCodeEnum.USER_NOT_AUTHORIZED);
+        }
+
+        //2. 查询用户
+        User user = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getId, id));
+        if (user == null) {
+            log.info("用户查询失败(用户不存在)：id={}", id);
+            return BaseResponse.fail(ErrorCodeEnum.USER_NOT_EXIST);
+        }
+        //3. 构建用户VO
+        UserVO userVO = UserVO.builder()
+                .id(user.getId())
+                .nickname(user.getNickname())
+                .username(user.getUsername())
+                .hasCouple(user.getHasCouple())
+                .avatar(user.getAvatar())
+                .gender(user.getGender())
+                .birthday(user.getBirthday())
+                .build();
+        return BaseResponse.success(userVO);
+    }
 }
+
+

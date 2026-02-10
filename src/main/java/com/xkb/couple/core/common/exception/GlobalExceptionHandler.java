@@ -29,9 +29,10 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public BaseResponse<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-
-        log.warn("参数校验异常: {}", e.getMessage(), e);
-        return BaseResponse.fail(e.getMessage());
+        //找到最后一个message并切除：.lastIndexOf(":")
+            String errorMessage = e.getMessage().substring(e.getMessage().lastIndexOf("message")+9, e.getMessage().length()-3 );
+        log.warn("参数校验异常: {}", errorMessage);
+        return BaseResponse.fail(errorMessage);
     }
     /**
      * 处理系统异常

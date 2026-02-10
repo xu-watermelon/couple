@@ -29,4 +29,10 @@ public interface UserService {
      * @return BaseResponse<User>
      */
     BaseResponse<UserVO> register(RegisterDTO registerDTO);
+    /**
+     * 获取用户信息
+     * @param id 用户id
+     * @return BaseResponse<UserVO>
+     */
+    BaseResponse<UserVO> getUserInfo(Long id);
 }

@@ -10,10 +10,7 @@ import com.xkb.couple.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 用户控制器
@@ -45,5 +42,14 @@ public class UserController {
     public BaseResponse<UserVO> register(@RequestBody @Valid RegisterDTO registerDTO) {
         log.info("用户注册：username={}, password={}", LogDesensitizeUtil.desensitizeUsername(registerDTO.getUsername()), LogDesensitizeUtil.desensitizePassword(registerDTO.getPassword()));
         return userService.register(registerDTO);
+    }
+    /**
+     * 获取用户信息
+     * @param id 用户id
+     * @return BaseResponse<UserVO>
+     */
+    @GetMapping("/info/{id}")
+    public BaseResponse<UserVO> getUserInfo(@PathVariable Long id) {
+        return userService.getUserInfo(id);
     }
 }
