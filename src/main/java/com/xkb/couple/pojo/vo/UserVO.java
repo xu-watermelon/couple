@@ -3,7 +3,7 @@ package com.xkb.couple.pojo.vo;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 @Data
 @Builder
 public class UserVO {
@@ -35,7 +35,7 @@ public class UserVO {
     /**
      * 生日
      */
-    private LocalDateTime birthday;
+    private LocalDate birthday;
 
 
 }

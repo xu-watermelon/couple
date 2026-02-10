@@ -2,6 +2,7 @@ package com.xkb.couple.core.common.exception;
 import com.xkb.couple.core.common.constants.ErrorCodeEnum;
 import com.xkb.couple.core.common.resp.BaseResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -23,7 +24,15 @@ public class GlobalExceptionHandler {
         ErrorCodeEnum errorCodeEnum = e.getErrorCodeEnum();
         return BaseResponse.fail(errorCodeEnum);
     }
+    /**
+     * 处理参数校验异常
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public BaseResponse<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
 
+        log.warn("参数校验异常: {}", e.getMessage(), e);
+        return BaseResponse.fail(e.getMessage());
+    }
     /**
      * 处理系统异常
      */

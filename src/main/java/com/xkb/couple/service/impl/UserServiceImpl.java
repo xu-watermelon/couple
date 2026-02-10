@@ -1,7 +1,9 @@
 package com.xkb.couple.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.xkb.couple.core.common.constants.ErrorCodeEnum;
 import com.xkb.couple.core.common.resp.BaseResponse;
+import com.xkb.couple.core.constants.UserConstans;
 import com.xkb.couple.core.utils.JwtUtil;
 import com.xkb.couple.core.utils.LogDesensitizeUtil;
 import com.xkb.couple.mapper.UserMapper;
@@ -15,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+
+import java.time.LocalDateTime;
 
 /**
  * 用户服务实现类
@@ -33,21 +37,21 @@ public class UserServiceImpl implements UserService {
         // 1. 校验参数
         if (loginDTO.getUsername() == null || loginDTO.getPassword() == null) {
             log.info("用户登录失败(用户名或密码为空)：username={}, password={}", LogDesensitizeUtil.desensitizeUsername(loginDTO.getUsername()), LogDesensitizeUtil.desensitizePassword(loginDTO.getPassword()));
-            return BaseResponse.fail("用户名或密码不能为空");
+            return BaseResponse.fail(ErrorCodeEnum.USERNAME_OR_PASSWORD_EMPTY);
         }
         // 2. 查询用户
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
                 .eq(User::getUsername, loginDTO.getUsername()));
         if (user == null) {
             log.info("用户登录失败(用户不存在)：username={}", LogDesensitizeUtil.desensitizeUsername(loginDTO.getUsername()));
-            return BaseResponse.fail("用户不存在");
+            return BaseResponse.fail(ErrorCodeEnum.USER_NOT_EXIST);
         }
         // 3. 校验密码(md5)
         // 密码md5加密
         String password = DigestUtils.md5DigestAsHex(loginDTO.getPassword().getBytes());
         if (!user.getPassword().equals(password)) {
             log.info("用户登录失败(密码错误)：username={}, password={}", LogDesensitizeUtil.desensitizeUsername(loginDTO.getUsername()), LogDesensitizeUtil.desensitizePassword(loginDTO.getPassword()));
-            return BaseResponse.fail("密码错误");
+            return BaseResponse.fail(ErrorCodeEnum.USER_PASSWORD_ERROR);
         }
         // 4. 生成token
         String token = jwtUtil.generateToken(user.getId());
@@ -70,7 +74,49 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public BaseResponse<User> register(RegisterDTO registerDTO) {
-        return null;
+    public BaseResponse<UserVO> register(RegisterDTO registerDTO) {
+        // 1. 校验参数
+        if (registerDTO.getUsername() == null || registerDTO.getPassword() == null || registerDTO.getConfirmPassword() == null) {
+            log.info("用户注册失败(用户名或密码为空)：username={}, password={}", LogDesensitizeUtil.desensitizeUsername(registerDTO.getUsername()), LogDesensitizeUtil.desensitizePassword(registerDTO.getPassword()));
+            return BaseResponse.fail(ErrorCodeEnum.USERNAME_OR_PASSWORD_EMPTY);
+        }
+        // 2. 校验密码是否一致
+        if (!registerDTO.getPassword().equals(registerDTO.getConfirmPassword())) {
+            log.info("用户注册失败(密码不一致)：username={}, password={}, confirmPassword={}", LogDesensitizeUtil.desensitizeUsername(registerDTO.getUsername()), LogDesensitizeUtil.desensitizePassword(registerDTO.getPassword()), LogDesensitizeUtil.desensitizePassword(registerDTO.getConfirmPassword()));
+            return BaseResponse.fail(ErrorCodeEnum.PASSWORD_NOT_MATCH);
+        }
+        //3.查询数据库中是否存在该用户
+        User user = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getUsername, registerDTO.getUsername()));
+        if (user != null) {
+            log.info("用户注册失败(用户名已存在)：username={}", LogDesensitizeUtil.desensitizeUsername(registerDTO.getUsername()));
+            return BaseResponse.fail(ErrorCodeEnum.USER_EXIST);
+        }
+        //4.将用户插入数据库TODO 差一个头像上传接口
+        userMapper.insert(User.builder()
+                .username(registerDTO.getUsername())
+                .password(DigestUtils.md5DigestAsHex(registerDTO.getPassword().getBytes()))
+                .nickname(registerDTO.getNickname())
+                .avatar(registerDTO.getAvatar())
+                .hasCouple(UserConstans.UserEnum.FEMALE.getValue())
+                .gender(registerDTO.getGender())
+                .birthday(registerDTO.getBirthday())
+                .createTime(LocalDateTime.now())
+                .updateTime(LocalDateTime.now())
+                .build());
+        user = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getUsername, registerDTO.getUsername()));
+        log.info("用户注册成功：username={}", LogDesensitizeUtil.desensitizeUsername(registerDTO.getUsername()));
+        UserVO userVO = UserVO.builder()
+                .id(user.getId())
+                .nickname(user.getNickname())
+                .username(user.getUsername())
+                .hasCouple(user.getHasCouple())
+                .avatar(user.getAvatar())
+                .gender(user.getGender())
+                .birthday(user.getBirthday())
+                .build();
+
+        return BaseResponse.success(userVO);
+
+
     }
 }

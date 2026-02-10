@@ -42,7 +42,16 @@ public enum ErrorCodeEnum {
     /**
      * 用户不存在或密码错误
      */
-    USER_NOT_EXIST_OR_PASSWORD_ERROR("1006", "用户不存在或密码错误"),
+    PASSWORD_ERROR("1006", "密码错误"),
+    /**
+     * 两次密码不一致
+     */
+    PASSWORD_NOT_MATCH("1007", "两次密码不一致"),
+
+    /**
+     * 用户名或密码为空
+*/
+    USERNAME_OR_PASSWORD_EMPTY("1008", "用户名或密码为空"),
     ;
 
     private final String code;

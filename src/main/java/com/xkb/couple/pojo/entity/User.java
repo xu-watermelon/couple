@@ -3,8 +3,10 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 /**
  * 用户表
@@ -12,6 +14,7 @@ import java.time.LocalDateTime;
  *  @date 2026/02/06
  */
 @Data
+@Builder
 @TableName("user")
 public class User {
         /**
@@ -54,7 +57,7 @@ public class User {
          * 生日
          */
         @TableField("birthday")
-        private LocalDateTime birthday;
+        private LocalDate birthday;
         /**
          * 创建时间
          */

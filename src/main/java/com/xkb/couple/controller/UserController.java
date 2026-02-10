@@ -4,12 +4,12 @@ import com.xkb.couple.core.common.resp.BaseResponse;
 import com.xkb.couple.core.utils.LogDesensitizeUtil;
 import com.xkb.couple.pojo.dto.LoginDTO;
 import com.xkb.couple.pojo.dto.RegisterDTO;
-import com.xkb.couple.pojo.entity.User;
 import com.xkb.couple.pojo.vo.LoginResponseVO;
+import com.xkb.couple.pojo.vo.UserVO;
 import com.xkb.couple.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Update;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +32,7 @@ public class UserController {
      * @return BaseResponse<User>
      */
     @PostMapping("/login")
-    public BaseResponse<LoginResponseVO> login(@RequestBody LoginDTO loginDTO) {
+    public BaseResponse<LoginResponseVO> login(@RequestBody @Valid LoginDTO loginDTO) {
         log.info("用户登录：username={}, password={}", LogDesensitizeUtil.desensitizeUsername(loginDTO.getUsername()), LogDesensitizeUtil.desensitizePassword(loginDTO.getPassword()));
         return userService.login(loginDTO);
     }
@@ -42,7 +42,7 @@ public class UserController {
      * @return BaseResponse<User>
      */
     @PostMapping("/register")
-    public BaseResponse<User> register(@RequestBody RegisterDTO registerDTO) {
+    public BaseResponse<UserVO> register(@RequestBody @Valid RegisterDTO registerDTO) {
         log.info("用户注册：username={}, password={}", LogDesensitizeUtil.desensitizeUsername(registerDTO.getUsername()), LogDesensitizeUtil.desensitizePassword(registerDTO.getPassword()));
         return userService.register(registerDTO);
     }
