@@ -29,11 +29,6 @@ public class User {
         @TableField("nickname")
         private String nickname;
         /**
-         * 用户名
-         */
-        @TableField("username")
-        private String username;
-        /**
          * 密码
          */
         @TableField("password")
@@ -58,6 +53,11 @@ public class User {
          */
         @TableField("birthday")
         private LocalDate birthday;
+        /**
+         * 邮箱
+         */
+        @TableField("email")
+        private String email;
         /**
          * 创建时间
          */

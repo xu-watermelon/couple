@@ -81,7 +81,11 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-
+        <!-- 引入redis依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
 
 
 <!--        引入druid-->
@@ -90,6 +94,14 @@
             <artifactId>druid</artifactId>
             <version>1.2.16</version>
         </dependency>
+
+        <!-- 引入邮箱依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
+
 
     </dependencies>
 

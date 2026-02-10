@@ -2,6 +2,8 @@ package com.xkb.couple.core.utils;
 
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * 日志脱敏工具类
@@ -35,30 +37,40 @@ public class LogDesensitizeUtil {
     }
 
     /**
-     * 手机号脱敏：保留前3后4位，中间用*替代
-     * 示例：13800138000 -> 138****8000
-     */
-    public static String desensitizeUsername(String phone) {
-        if (StringUtils.isBlank(phone) || phone.length() < 11) {
-            return phone;
-        }
-        return phone.substring(0, 3) + "****" + phone.substring(phone.length() - 4);
-    }
-
-    /**
      * 邮箱脱敏：用户名部分保留首尾字符，域名部分保留
      * 示例：zhangsan@example.com -> z******n@example.com
      */
     public static String desensitizeEmail(String email) {
+        // 参数验证
         if (StringUtils.isBlank(email) || !email.contains("@")) {
             return email;
         }
+
         String[] parts = email.split("@");
         if (parts.length != 2) {
             return email;
         }
-        String username = desensitizeUsername(parts[0]);
-        return username + "@" + parts[1];
+
+        String username = parts[0];
+        String domain = parts[1];
+
+        // 处理不同长度的用户名
+        if (username.isEmpty()) {
+            return email;
+        } else if (username.length() == 1) {
+            // 单字符用户名：*@example.com
+            return "*@" + domain;
+        } else if (username.length() == 2) {
+            // 双字符用户名：ab@example.com（完整保留）
+            return username + "@" + domain;
+        } else {
+            // 多字符用户名：a***z@example.com
+            char firstChar = username.charAt(0);
+            char lastChar = username.charAt(username.length() - 1);
+            int maskLength = username.length() - 2;
+            String mask = "*".repeat(maskLength);
+            return firstChar + mask + lastChar + "@" + domain;
+        }
     }
 
         /**
@@ -76,4 +88,11 @@ public class LogDesensitizeUtil {
             }
             return token.substring(0, startIndex) + "*".repeat(endIndex - startIndex) + token.substring(endIndex);
         }
-    }
+
+        /**
+         * 验证码脱敏：全部用*替代
+         */
+             public static Object desensitizeCaptcha(@NotBlank(message = "验证码不能为空") @Pattern(regexp = "^\\d{6}$", message = "验证码格式不正确") String captcha) {
+                 return "*".repeat(captcha.length());
+            }
+}

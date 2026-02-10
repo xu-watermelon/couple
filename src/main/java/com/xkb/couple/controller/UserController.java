@@ -30,7 +30,7 @@ public class UserController {
      */
     @PostMapping("/login")
     public BaseResponse<LoginResponseVO> login(@RequestBody @Valid LoginDTO loginDTO) {
-        log.info("用户登录：username={}, password={}", LogDesensitizeUtil.desensitizeUsername(loginDTO.getUsername()), LogDesensitizeUtil.desensitizePassword(loginDTO.getPassword()));
+        log.info("用户登录：email={}, password={}", LogDesensitizeUtil.desensitizeEmail(loginDTO.getEmail()), LogDesensitizeUtil.desensitizePassword(loginDTO.getPassword()));
         return userService.login(loginDTO);
     }
     /**
@@ -39,12 +39,12 @@ public class UserController {
      * @return BaseResponse<User>
      */
     @PostMapping("/register")
-    public BaseResponse<UserVO> register(@RequestBody @Valid RegisterDTO registerDTO) {
-        log.info("用户注册：username={}, password={}", LogDesensitizeUtil.desensitizeUsername(registerDTO.getUsername()), LogDesensitizeUtil.desensitizePassword(registerDTO.getPassword()));
+    public BaseResponse<LoginResponseVO> register(@RequestBody @Valid RegisterDTO registerDTO) {
+        log.info("用户注册：email={}, password={}", LogDesensitizeUtil.desensitizeEmail(registerDTO.getEmail()), LogDesensitizeUtil.desensitizePassword(registerDTO.getPassword()));
         return userService.register(registerDTO);
     }
     /**
-     * 获取用户信息
+     * 获取当前用户信息
      * @param id 用户id
      * @return BaseResponse<UserVO>
      */
@@ -52,4 +52,13 @@ public class UserController {
     public BaseResponse<UserVO> getUserInfo(@PathVariable Long id) {
         return userService.getUserInfo(id);
     }
-}
+
+    /**
+     * 获取验证码
+     * @param email 邮箱
+     */
+    @GetMapping("/captcha")
+    public BaseResponse<String> getCaptcha(@RequestParam String email) {
+        return userService.getCaptcha(email);
+    }
+    }

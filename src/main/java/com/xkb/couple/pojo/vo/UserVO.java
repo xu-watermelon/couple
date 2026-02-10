@@ -4,6 +4,11 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
+/**
+ * 用户VO
+ * @author xuwatermelon
+ * @date 2026/02/07
+ */
 @Data
 @Builder
 public class UserVO {
@@ -11,15 +16,16 @@ public class UserVO {
      * 用户id
      */
     private Long id;
+    /**
+     * 邮箱
+     */
+    private String email;
 
     /**
      * 昵称
      */
     private String nickname;
-    /**
-     * 用户名
-     */
-    private String username;
+
     /**
      * 是否有情侣 0-没有 1-有
      */
@@ -36,6 +42,7 @@ public class UserVO {
      * 生日
      */
     private LocalDate birthday;
+
 
 
 }

@@ -40,18 +40,14 @@ public enum ErrorCodeEnum {
      */
     USER_NOT_AUTHORIZED("1005", "用户未授权"),
     /**
-     * 用户不存在或密码错误
-     */
-    PASSWORD_ERROR("1006", "密码错误"),
-    /**
      * 两次密码不一致
      */
     PASSWORD_NOT_MATCH("1007", "两次密码不一致"),
 
     /**
      * 用户名或密码为空
-*/
-    USERNAME_OR_PASSWORD_EMPTY("1008", "用户名或密码为空"),
+    */
+    EMAIL_OR_PASSWORD_EMPTY("1008", "邮箱或密码为空"),
     /**
      * 用户id为空
      */
@@ -59,7 +55,39 @@ public enum ErrorCodeEnum {
     /**
      * 参数校验失败
      */
-    PARAMS_ERROR("1010", "参数校验失败");
+    PARAMS_ERROR("1010", "参数校验失败"),
+    /**
+     * 邮箱为空
+     */
+    EMAIL_EMPTY("1011", "邮箱为空"),
+    /**
+     * 邮件发送失败
+     */
+    MAIL_SEND_ERROR("1012", "邮件发送失败"),
+    /**
+     * 邮件内容为空
+     */
+    EMAIL_CONTENT_EMPTY("1013", "邮件内容为空"),
+    /**
+     * 验证码生成失败
+     */
+    CAPTCHA_GENERATE_FAILED("1014", "验证码生成失败"),
+    /**
+     * 验证码ID为空
+     */
+    CAPTCHA_ID_EMPTY("1015", "验证码ID为空"),
+    /**
+     * 验证码为空
+     */
+    CAPTCHA_EMPTY("1016", "验证码为空"),
+     /**
+     * 验证码错误
+     */
+    CAPTCHA_ERROR("1017", "验证码错误"),
+
+    ;
+
+
 
     private final String code;
     private final String message;

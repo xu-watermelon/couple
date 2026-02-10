@@ -28,11 +28,17 @@ public interface UserService {
      * @param registerDTO 注册参数 DTO
      * @return BaseResponse<User>
      */
-    BaseResponse<UserVO> register(RegisterDTO registerDTO);
+    BaseResponse<LoginResponseVO> register(RegisterDTO registerDTO);
     /**
      * 获取用户信息
      * @param id 用户id
      * @return BaseResponse<UserVO>
      */
     BaseResponse<UserVO> getUserInfo(Long id);
+    /**
+     * 获取验证码
+     * @param email 邮箱
+     * @return BaseResponse<String> 验证码
+     */
+    BaseResponse<String> getCaptcha(String email);
 }

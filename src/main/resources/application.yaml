@@ -4,6 +4,11 @@ spring:
   # 导入敏感配置文件
   config:
     import: optional:classpath:application-dev.properties
+#  邮箱配置
+  mail :
+    username: ${spring.mail.username}
+    password: ${spring.mail.password}
+    host: ${spring.mail.host}
 
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
@@ -13,6 +18,12 @@ spring:
     password: ${spring.datasource.password}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+
+  data:
+    redis:
+      host: ${spring.redis.host}
+      port: ${spring.redis.port}
+      password: ${spring.redis.password}
 
 # MyBatis Plus配置
 mybatis-plus:
@@ -27,3 +38,8 @@ couple:
     # 从application-secret.properties引用
     secret: ${couple.jwt.secret}
     expiration: 9999999999  # 过期时间，单位：秒
+  captcha:
+    expiration: 600  # 过期时间，单位：秒
+#  验证码配置
+  mail:
+    from: ${couple.mail.from}
