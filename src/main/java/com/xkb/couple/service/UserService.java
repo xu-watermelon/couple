@@ -1,10 +1,13 @@
 package com.xkb.couple.service;
 
 import com.xkb.couple.core.common.resp.BaseResponse;
-import com.xkb.couple.pojo.dto.LoginDTO;
+import com.xkb.couple.pojo.dto.CaptchaLoginDTO;
+import com.xkb.couple.pojo.dto.ForgetPasswordDTO;
+import com.xkb.couple.pojo.dto.PasswordLoginDTO;
 import com.xkb.couple.pojo.dto.RegisterDTO;
 import com.xkb.couple.pojo.vo.LoginResponseVO;
 import com.xkb.couple.pojo.vo.UserVO;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 
@@ -19,11 +22,17 @@ public interface UserService {
 
 
     /**
-     * 登录
-     * @param loginDTO 登录参数 DTO
+     * 密码登录
+     * @param passwordLoginDTO 登录参数 DTO
      * @return BaseResponse<LoginResponseVO>
      */
-    BaseResponse<LoginResponseVO> login(LoginDTO loginDTO);
+    BaseResponse<LoginResponseVO> login(PasswordLoginDTO passwordLoginDTO);
+    /**
+     * 验证码登录
+     * @param captchaLoginDTO 登录参数 DTO
+     * @return BaseResponse<LoginResponseVO>
+     */
+    BaseResponse<LoginResponseVO> loginByCaptcha(@Valid CaptchaLoginDTO captchaLoginDTO);
     /**
      * 注册
      *
@@ -46,4 +55,10 @@ public interface UserService {
      * @return BaseResponse<String> 验证码
      */
     BaseResponse<String> getCaptcha(@Email String email, @NotNull String type);
+
+    /**
+     * 忘记密码
+     * @param forgetPasswordDTO 忘记密码参数 DTO
+     **/
+    BaseResponse<String> forgetPassword(ForgetPasswordDTO forgetPasswordDTO);
 }

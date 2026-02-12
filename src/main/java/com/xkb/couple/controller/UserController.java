@@ -2,7 +2,9 @@ package com.xkb.couple.controller;
 
 import com.xkb.couple.core.common.resp.BaseResponse;
 import com.xkb.couple.core.utils.LogDesensitizeUtil;
-import com.xkb.couple.pojo.dto.LoginDTO;
+import com.xkb.couple.pojo.dto.CaptchaLoginDTO;
+import com.xkb.couple.pojo.dto.ForgetPasswordDTO;
+import com.xkb.couple.pojo.dto.PasswordLoginDTO;
 import com.xkb.couple.pojo.dto.RegisterDTO;
 import com.xkb.couple.pojo.vo.LoginResponseVO;
 import com.xkb.couple.pojo.vo.UserVO;
@@ -27,13 +29,23 @@ public class UserController {
     private final UserService userService;
     /**
      * 登录
-     * @param loginDTO 登录参数 DTO
+     * @param passwordLoginDTO 登录参数 DTO
      * @return BaseResponse<User>
      */
     @PostMapping("/login")
-    public BaseResponse<LoginResponseVO> login(@RequestBody @Valid LoginDTO loginDTO) {
-        log.info("用户登录：email={}, password={}", LogDesensitizeUtil.desensitizeEmail(loginDTO.getEmail()), LogDesensitizeUtil.desensitizePassword(loginDTO.getPassword()));
-        return userService.login(loginDTO);
+    public BaseResponse<LoginResponseVO> login(@RequestBody @Valid PasswordLoginDTO passwordLoginDTO) {
+        log.info("用户登录：email={}, password={}", LogDesensitizeUtil.desensitizeEmail(passwordLoginDTO.getEmail()), LogDesensitizeUtil.desensitizePassword(passwordLoginDTO.getPassword()));
+        return userService.login(passwordLoginDTO);
+    }
+    /**
+     * 验证码登录
+     * @param captchaLoginDTO 登录参数 DTO
+     * @return BaseResponse<User>
+     */
+    @PostMapping("/login/captcha")
+    public BaseResponse<LoginResponseVO> loginByCaptcha(@RequestBody @Valid CaptchaLoginDTO captchaLoginDTO) {
+        log.info("用户验证码登录：email={}, captcha={}", LogDesensitizeUtil.desensitizeEmail(captchaLoginDTO.getEmail()), LogDesensitizeUtil.desensitizePassword(captchaLoginDTO.getCaptcha()));
+        return userService.loginByCaptcha(captchaLoginDTO);
     }
     /**
      * 注册
@@ -65,6 +77,17 @@ public class UserController {
     public BaseResponse<String> getCaptcha(@RequestParam @Email String email,
                                            @RequestParam @NotNull String type) {
         return userService.getCaptcha(email, type);
+    }
+
+    /**
+     * 忘记密码
+     * @param forgetPasswordDTO 忘记密码参数 DTO
+     */
+    @PostMapping("/forget")
+    public BaseResponse<String> forgetPassword(@RequestBody  ForgetPasswordDTO forgetPasswordDTO) {
+        log.info("用户忘记密码：email={}, captcha={}, password={}", LogDesensitizeUtil.desensitizeEmail(forgetPasswordDTO.getEmail()), LogDesensitizeUtil.desensitizePassword(forgetPasswordDTO.getCaptcha()), LogDesensitizeUtil.desensitizePassword(forgetPasswordDTO.getPassword()));
+        return userService.forgetPassword(forgetPasswordDTO);
+
     }
 
 

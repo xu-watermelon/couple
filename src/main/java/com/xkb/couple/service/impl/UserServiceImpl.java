@@ -8,20 +8,21 @@ import com.xkb.couple.core.common.resp.BaseResponse;
 import com.xkb.couple.core.constants.UserConstans;
 import com.xkb.couple.core.utils.*;
 import com.xkb.couple.mapper.UserMapper;
-import com.xkb.couple.pojo.dto.LoginDTO;
+import com.xkb.couple.pojo.dto.CaptchaLoginDTO;
+import com.xkb.couple.pojo.dto.ForgetPasswordDTO;
+import com.xkb.couple.pojo.dto.PasswordLoginDTO;
 import com.xkb.couple.pojo.dto.RegisterDTO;
 import com.xkb.couple.pojo.entity.User;
 import com.xkb.couple.pojo.vo.LoginResponseVO;
 import com.xkb.couple.pojo.vo.UserVO;
 import com.xkb.couple.service.UserService;
-import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.regex.Pattern;
 
 /**
  * 用户服务实现类
@@ -38,24 +39,24 @@ public class UserServiceImpl implements UserService {
     private final CaptchaUtil captchaUtil;
 
     @Override
-    public BaseResponse<LoginResponseVO> login(LoginDTO loginDTO) {
+    public BaseResponse<LoginResponseVO> login(PasswordLoginDTO passwordLoginDTO) {
         // 1. 校验参数
-        if (loginDTO.getEmail() == null || loginDTO.getPassword() == null) {
-            log.info("用户登录失败(邮箱或密码为空)：email={}, password={}", LogDesensitizeUtil.desensitizeEmail(loginDTO.getEmail()), LogDesensitizeUtil.desensitizePassword(loginDTO.getPassword()));
+        if (passwordLoginDTO.getEmail() == null || passwordLoginDTO.getPassword() == null) {
+            log.info("用户登录失败(邮箱或密码为空)：email={}, password={}", LogDesensitizeUtil.desensitizeEmail(passwordLoginDTO.getEmail()), LogDesensitizeUtil.desensitizePassword(passwordLoginDTO.getPassword()));
             return BaseResponse.fail(ErrorCodeEnum.EMAIL_OR_PASSWORD_EMPTY);
         }
         // 2. 查询用户
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
-                .eq(User::getEmail, loginDTO.getEmail()));
+                .eq(User::getEmail, passwordLoginDTO.getEmail()));
         if (user == null) {
-            log.info("用户登录失败(用户不存在)：email={}", LogDesensitizeUtil.desensitizeEmail(loginDTO.getEmail()));
+            log.info("用户登录失败(用户不存在)：email={}", LogDesensitizeUtil.desensitizeEmail(passwordLoginDTO.getEmail()));
             return BaseResponse.fail(ErrorCodeEnum.USER_NOT_EXIST);
         }
         // 3. 校验密码(md5)
         // 密码md5加密
-        String password = DigestUtils.md5DigestAsHex(loginDTO.getPassword().getBytes());
+        String password = DigestUtils.md5DigestAsHex(passwordLoginDTO.getPassword().getBytes());
         if (!user.getPassword().equals(password)) {
-            log.info("用户登录失败(密码错误)：email={}, password={}", LogDesensitizeUtil.desensitizeEmail(loginDTO.getEmail()), LogDesensitizeUtil.desensitizePassword(loginDTO.getPassword()));
+            log.info("用户登录失败(密码错误)：email={}, password={}", LogDesensitizeUtil.desensitizeEmail(passwordLoginDTO.getEmail()), LogDesensitizeUtil.desensitizePassword(passwordLoginDTO.getPassword()));
             return BaseResponse.fail(ErrorCodeEnum.USER_PASSWORD_ERROR);
         }
         // 4. 生成token
@@ -70,7 +71,53 @@ public class UserServiceImpl implements UserService {
                 .birthday(user.getBirthday())
                 .build();
 
-        log.info("用户登录成功：email={}, token={}", LogDesensitizeUtil.desensitizeEmail(loginDTO.getEmail()), LogDesensitizeUtil.desensitizeToken(token));
+        log.info("用户登录成功：email={}, token={}", LogDesensitizeUtil.desensitizeEmail(passwordLoginDTO.getEmail()), LogDesensitizeUtil.desensitizeToken(token));
+        LoginResponseVO loginResponseVO = LoginResponseVO.builder()
+                .token(token)
+                .userVO(userVO)
+                .build();
+        return BaseResponse.success(loginResponseVO);
+    }
+
+    /**
+     * @param captchaLoginDTO 登录参数 DTO
+     * @return
+     */
+    @Override
+    public BaseResponse<LoginResponseVO> loginByCaptcha(CaptchaLoginDTO captchaLoginDTO) {
+        // 1. 校验参数
+        if (captchaLoginDTO.getEmail() == null) {
+            log.info("用户登录失败(邮箱为空)：email={}", LogDesensitizeUtil.desensitizeEmail(null));
+            return BaseResponse.fail(ErrorCodeEnum.EMAIL_EMPTY);
+        }
+        if (captchaLoginDTO.getCaptcha() == null || captchaLoginDTO.getCaptchaId() == null) {
+            log.info("用户登录失败(验证码或验证码id为空)：email={}, captcha={}, captchaId={}", LogDesensitizeUtil.desensitizeEmail(captchaLoginDTO.getEmail()), LogDesensitizeUtil.desensitizeCaptcha(captchaLoginDTO.getCaptcha()),captchaLoginDTO.getCaptchaId());
+            return BaseResponse.fail(ErrorCodeEnum.CAPTCHA_EMPTY);
+        }
+        //2. 验证码校验
+        if (!captchaUtil.validateCaptcha(captchaLoginDTO.getCaptchaId(), captchaLoginDTO.getEmail(), captchaLoginDTO.getCaptcha())) {
+            log.info("用户登录失败(验证码错误)：email={}, captcha={}", LogDesensitizeUtil.desensitizeEmail(captchaLoginDTO.getEmail()), LogDesensitizeUtil.desensitizeCaptcha(captchaLoginDTO.getCaptcha()));
+            return BaseResponse.fail(ErrorCodeEnum.CAPTCHA_ERROR);
+        }
+        // 3. 查询用户
+        User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
+                .eq(User::getEmail, captchaLoginDTO.getEmail()));
+        if (user == null) {
+            log.info("用户登录失败(用户不存在)：email={}", LogDesensitizeUtil.desensitizeEmail(captchaLoginDTO.getEmail()));
+            return BaseResponse.fail(ErrorCodeEnum.USER_NOT_EXIST);
+        }
+        // 4. 生成token
+        String token = jwtUtil.generateToken(user.getId());
+        UserVO userVO = UserVO.builder()
+                .id(user.getId())
+                .nickname(user.getNickname())
+                .email(user.getEmail())
+                .hasCouple(user.getHasCouple())
+                .avatar(user.getAvatar())
+                .gender(user.getGender())
+                .birthday(user.getBirthday())
+                .build();
+        log.info("用户登录成功：email={}, token={}", LogDesensitizeUtil.desensitizeEmail(captchaLoginDTO.getEmail()), LogDesensitizeUtil.desensitizeToken(token));
         LoginResponseVO loginResponseVO = LoginResponseVO.builder()
                 .token(token)
                 .userVO(userVO)
@@ -204,6 +251,52 @@ public class UserServiceImpl implements UserService {
 
             return BaseResponse.success(captchaResult.getCaptchaId());
 
+    }
+
+    /**
+     * @param forgetPasswordDTO 忘记密码参数 DTO
+     * @return
+     */
+    @Override
+    public BaseResponse<String> forgetPassword(ForgetPasswordDTO forgetPasswordDTO) {
+        if (forgetPasswordDTO == null) {
+            log.info("忘记密码失败(参数为空)：forgetPasswordDTO={}", (Object) null);
+            return BaseResponse.fail(ErrorCodeEnum.PARAMS_ERROR);
+        }
+        if (forgetPasswordDTO.getEmail() == null) {
+            log.info("忘记密码失败(邮箱为空)：email={}", (Object) null);
+            return BaseResponse.fail(ErrorCodeEnum.EMAIL_EMPTY);
+        }
+        if (forgetPasswordDTO.getCaptcha() == null) {
+            log.info("忘记密码失败(验证码为空)：captcha={}", (Object) null);
+            return BaseResponse.fail(ErrorCodeEnum.CAPTCHA_EMPTY);
+        }
+        if (forgetPasswordDTO.getCaptchaId() == null) {
+            log.info("忘记密码失败(验证码ID为空)：captchaId={}", (Object) null);
+            return BaseResponse.fail(ErrorCodeEnum.CAPTCHA_ID_EMPTY);
+        }
+        if (forgetPasswordDTO.getPassword() == null) {
+            log.info("忘记密码失败(密码为空)：password={}", (Object) null);
+            return BaseResponse.fail(ErrorCodeEnum.EMAIL_OR_PASSWORD_EMPTY);
+        }
+        if (!forgetPasswordDTO.getPassword().equals(forgetPasswordDTO.getConfirmPassword())) {
+            log.info("忘记密码失败(两次密码不一致)：password={}, confirmPassword={}", LogDesensitizeUtil.desensitizePassword(forgetPasswordDTO.getPassword()), LogDesensitizeUtil.desensitizePassword(forgetPasswordDTO.getConfirmPassword()));
+            return BaseResponse.fail(ErrorCodeEnum.PASSWORD_NOT_MATCH);
+        }
+        if (!captchaUtil.validateCaptcha(forgetPasswordDTO.getCaptchaId(), forgetPasswordDTO.getEmail(), forgetPasswordDTO.getCaptcha())) {
+            log.info("忘记密码失败(验证码错误)：captchaId={}, email={}, captcha={}", forgetPasswordDTO.getCaptchaId(), LogDesensitizeUtil.desensitizeEmail(forgetPasswordDTO.getEmail()), LogDesensitizeUtil.desensitizeCaptcha(forgetPasswordDTO.getCaptcha()));
+            return BaseResponse.fail(ErrorCodeEnum.CAPTCHA_ERROR);
+        }
+        User user = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getEmail, forgetPasswordDTO.getEmail()));
+        if (user == null) {
+            log.info("忘记密码失败(用户不存在)：email={}", LogDesensitizeUtil.desensitizeEmail(forgetPasswordDTO.getEmail()));
+            return BaseResponse.fail(ErrorCodeEnum.USER_NOT_EXIST);
+        }
+        // 更新用户密码
+        user.setPassword(DigestUtils.md5DigestAsHex(forgetPasswordDTO.getPassword().getBytes(StandardCharsets.UTF_8)));
+        user.setUpdateTime(LocalDateTime.now());
+        userMapper.updateById(user);
+        return BaseResponse.success();
     }
 
 
