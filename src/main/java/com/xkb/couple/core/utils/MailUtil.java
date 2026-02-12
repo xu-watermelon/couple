@@ -57,7 +57,7 @@ public class MailUtil {
     /**
      * 发送找回密码邮件
      */
-    public void sendForgetPasswordMail(String to, String code) throws BusinessException {
+    public void sendForgetMail(String to, String code) throws BusinessException {
         sendMail(to, code,ForgetPasswordHtmlTemplate);
     }
 

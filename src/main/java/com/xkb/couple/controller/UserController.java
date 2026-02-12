@@ -58,11 +58,20 @@ public class UserController {
      * 获取注册验证码
      * @param email 邮箱
      */
-    @GetMapping("/register/captcha")
+    @GetMapping("/captcha/register")
     public BaseResponse<String> getRegisterCaptcha(@RequestParam @Email String email) {
         return userService.getRegisterCaptcha(email);
     }
 
+    /**
+     * 获取忘记密码验证码
+     * @param email 邮箱
+     */
+    @GetMapping("/captcha/forget")
+    public BaseResponse<String> getForgetCaptcha(@RequestParam @Email String email) {
+        return userService.getForgetCaptcha(email);
 
 
+
+}
 }

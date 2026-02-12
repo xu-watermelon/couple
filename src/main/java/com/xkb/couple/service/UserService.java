@@ -43,4 +43,10 @@ public interface UserService {
      * @return BaseResponse<String> 验证码
      */
     BaseResponse<String> getRegisterCaptcha(@Email String email);
+     /**
+     * 获取忘记密码验证码
+     * @param email 邮箱
+     * @return BaseResponse<String> 验证码
+     */
+    BaseResponse<String> getForgetCaptcha(@Email String email);
 }

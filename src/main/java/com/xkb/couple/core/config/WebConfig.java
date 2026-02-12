@@ -23,7 +23,7 @@ public class WebConfig implements WebMvcConfigurer {
         // 添加路径匹配
         registry.addInterceptor(authInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/api/user/login", "/api/user/register", "/api/user/register/captcha");
+                .excludePathPatterns("/api/user/login", "/api/user/register", "/api/user/captcha/*");
         WebMvcConfigurer.super.addInterceptors(registry);
     }
 }

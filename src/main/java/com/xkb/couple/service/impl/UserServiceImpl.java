@@ -175,7 +175,7 @@ public class UserServiceImpl implements UserService {
      * @return
      */
     @Override
-    public BaseResponse<String> getRegisterCaptcha(@Email String email) {
+    public BaseResponse<String> getRegisterCaptcha( String email) {
         // 1. 空值检查（必要）
         if (email == null || email.isEmpty()) {
             log.info("获取验证码失败(邮箱为空)");
@@ -192,6 +192,27 @@ public class UserServiceImpl implements UserService {
         return BaseResponse.success(captchaResult.getCaptchaId());
     }
 
+    /**
+     * @param email 邮箱
+     * @return
+     */
+    @Override
+    public BaseResponse<String> getForgetCaptcha(String email) {
+        // 1. 空值检查（必要）
+        if (email == null || email.isEmpty()) {
+            log.info("获取验证码失败(邮箱为空)");
+            return BaseResponse.fail(ErrorCodeEnum.EMAIL_EMPTY);
+        }
+
+        // 2. 邮箱格式检查（可选，如果Controller层已验证）
+        if (!Pattern.matches(SystemConfigConstans.EMAIL_REGEX, email)) {
+            log.info("获取验证码失败(邮箱格式错误)：email={}", LogDesensitizeUtil.desensitizeEmail(email));
+            return BaseResponse.fail(ErrorCodeEnum.EMAIL_FORMAT_ERROR);
+        }
+        CaptchaUtil.CaptchaResult captchaResult = captchaUtil.generateCaptcha(email);
+        mailUtil.sendForgetMail(email, captchaResult.getCaptcha());
+        return BaseResponse.success(captchaResult.getCaptchaId());
+    }
 
 
 }
