@@ -8,10 +8,7 @@ import com.xkb.couple.core.common.resp.BaseResponse;
 import com.xkb.couple.core.constants.UserConstans;
 import com.xkb.couple.core.utils.*;
 import com.xkb.couple.mapper.UserMapper;
-import com.xkb.couple.pojo.dto.CaptchaLoginDTO;
-import com.xkb.couple.pojo.dto.ForgetPasswordDTO;
-import com.xkb.couple.pojo.dto.PasswordLoginDTO;
-import com.xkb.couple.pojo.dto.RegisterDTO;
+import com.xkb.couple.pojo.dto.*;
 import com.xkb.couple.pojo.entity.User;
 import com.xkb.couple.pojo.vo.LoginResponseVO;
 import com.xkb.couple.pojo.vo.UserVO;
@@ -256,10 +253,10 @@ public class UserServiceImpl implements UserService {
 
     /**
      * @param forgetPasswordDTO 忘记密码参数 DTO
-     * @return
+     * @return BaseResponse<Void> 无返回值
      */
     @Override
-    public BaseResponse<String> forgetPassword(ForgetPasswordDTO forgetPasswordDTO) {
+    public BaseResponse<Void> forgetPassword(ForgetPasswordDTO forgetPasswordDTO) {
         if (forgetPasswordDTO == null) {
             log.info("忘记密码失败(参数为空)：forgetPasswordDTO={}", (Object) null);
             return BaseResponse.fail(ErrorCodeEnum.PARAMS_ERROR);
@@ -297,6 +294,50 @@ public class UserServiceImpl implements UserService {
         user.setPassword(bcrypt.encode(forgetPasswordDTO.getPassword()));
         user.setUpdateTime(LocalDateTime.now());
         userMapper.updateById(user);
+        return BaseResponse.success();
+    }
+
+    /**
+     * @param resetPasswordDTO 重置密码参数 DTO
+     * @return BaseResponse<Void> 无返回值
+     */
+    @Override
+    public BaseResponse<Void> resetPassword(ResetPasswordDTO resetPasswordDTO) {
+        // 1.参数校验
+        // 校验参数是否为空
+        if (resetPasswordDTO == null) {
+            log.info("重置密码失败(参数为空)：resetPasswordDTO={}", (Object) null);
+            return BaseResponse.fail(ErrorCodeEnum.PARAMS_ERROR);
+        }
+        // 校验密码是否为空
+       if (resetPasswordDTO.getOldPassword() == null || resetPasswordDTO.getNewPassword() == null || resetPasswordDTO.getConfirmNewPassword() == null) {
+           log.info("重置密码失败(密码为空)：oldPassword={}, newPassword={}, confirmNewPassword={}", LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getOldPassword()), LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getNewPassword()), LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getConfirmNewPassword()));
+           return BaseResponse.fail(ErrorCodeEnum.EMAIL_EMPTY);
+       }
+       //检验旧密码和新密码是否一致
+        if (resetPasswordDTO.getOldPassword().equals(resetPasswordDTO.getNewPassword())) {
+            log.info("重置密码失败(旧密码和新密码一致)：oldPassword={}, newPassword={}", LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getOldPassword()), LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getNewPassword()));
+            return BaseResponse.fail(ErrorCodeEnum.OLD_PASSWORD_EQUAL_NEW_PASSWORD);
+        }
+        // 检验新密码和确认新密码是否一致
+       if (!resetPasswordDTO.getNewPassword().equals(resetPasswordDTO.getConfirmNewPassword())) {
+           log.info("重置密码失败(两次密码不一致)：newPassword={}, confirmNewPassword={}", LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getNewPassword()), LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getConfirmNewPassword()));
+           return BaseResponse.fail(ErrorCodeEnum.PASSWORD_NOT_MATCH);
+       }
+       // 2.校验旧密码是否正确
+       User user = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getId,UserHolder.getUserId()));
+       if (user == null) {
+           log.info("重置密码失败(用户不存在)：userId={}", UserHolder.getUserId());
+           return BaseResponse.fail(ErrorCodeEnum.USER_NOT_EXIST);
+       }
+       //检验旧密码是否正确
+       if (!bcrypt.matches(resetPasswordDTO.getOldPassword(), user.getPassword())) {
+           log.info("重置密码失败(旧密码错误)：oldPassword={}", LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getOldPassword()));
+           return BaseResponse.fail(ErrorCodeEnum.USER_PASSWORD_ERROR);
+       }
+       user.setPassword(bcrypt.encode(resetPasswordDTO.getNewPassword()));
+       user.setUpdateTime(LocalDateTime.now());
+       userMapper.updateById(user);
         return BaseResponse.success();
     }
 

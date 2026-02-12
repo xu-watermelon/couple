@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Random;
 
@@ -31,6 +32,12 @@ class CoupleApplicationTests {
         Random random = new Random();
         int captcha = random.nextInt(1000000);
         System.out.println(captcha);
+    }
+    @Test
+    void BcryptTest() {
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        String encode = bCryptPasswordEncoder.encode("123456xkb");
+        System.out.println(encode);
     }
 
 }

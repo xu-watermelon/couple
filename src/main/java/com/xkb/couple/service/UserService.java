@@ -1,10 +1,7 @@
 package com.xkb.couple.service;
 
 import com.xkb.couple.core.common.resp.BaseResponse;
-import com.xkb.couple.pojo.dto.CaptchaLoginDTO;
-import com.xkb.couple.pojo.dto.ForgetPasswordDTO;
-import com.xkb.couple.pojo.dto.PasswordLoginDTO;
-import com.xkb.couple.pojo.dto.RegisterDTO;
+import com.xkb.couple.pojo.dto.*;
 import com.xkb.couple.pojo.vo.LoginResponseVO;
 import com.xkb.couple.pojo.vo.UserVO;
 import jakarta.validation.Valid;
@@ -59,6 +56,13 @@ public interface UserService {
     /**
      * 忘记密码
      * @param forgetPasswordDTO 忘记密码参数 DTO
+     * @return BaseResponse<Void> 无返回值
      **/
-    BaseResponse<String> forgetPassword(ForgetPasswordDTO forgetPasswordDTO);
+    BaseResponse<Void> forgetPassword(ForgetPasswordDTO forgetPasswordDTO);
+    /**
+     * 重置密码
+     * @param resetPasswordDTO 重置密码参数 DTO
+     * @return BaseResponse<Void> 无返回值
+     **/
+    BaseResponse<Void> resetPassword(@Valid ResetPasswordDTO resetPasswordDTO);
 }

@@ -39,10 +39,16 @@ public enum ErrorCodeEnum {
      * 用户未授权
      */
     USER_NOT_AUTHORIZED("1005", "用户未授权"),
+
+    /**
+     * 旧密码和新密码一致
+     */
+    OLD_PASSWORD_EQUAL_NEW_PASSWORD("1006", "旧密码和新密码一致"),
     /**
      * 两次密码不一致
      */
     PASSWORD_NOT_MATCH("1007", "两次密码不一致"),
+
 
     /**
      * 用户名或密码为空

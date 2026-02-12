@@ -2,10 +2,7 @@ package com.xkb.couple.controller;
 
 import com.xkb.couple.core.common.resp.BaseResponse;
 import com.xkb.couple.core.utils.LogDesensitizeUtil;
-import com.xkb.couple.pojo.dto.CaptchaLoginDTO;
-import com.xkb.couple.pojo.dto.ForgetPasswordDTO;
-import com.xkb.couple.pojo.dto.PasswordLoginDTO;
-import com.xkb.couple.pojo.dto.RegisterDTO;
+import com.xkb.couple.pojo.dto.*;
 import com.xkb.couple.pojo.vo.LoginResponseVO;
 import com.xkb.couple.pojo.vo.UserVO;
 import com.xkb.couple.service.UserService;
@@ -82,14 +79,25 @@ public class UserController {
     /**
      * 忘记密码
      * @param forgetPasswordDTO 忘记密码参数 DTO
+     *@return BaseResponse<Void> 无返回值
      */
     @PostMapping("/forget")
-    public BaseResponse<String> forgetPassword(@RequestBody  ForgetPasswordDTO forgetPasswordDTO) {
+    public BaseResponse<Void> forgetPassword(@RequestBody  ForgetPasswordDTO forgetPasswordDTO) {
         log.info("用户忘记密码：email={}, captcha={}, password={}", LogDesensitizeUtil.desensitizeEmail(forgetPasswordDTO.getEmail()), LogDesensitizeUtil.desensitizePassword(forgetPasswordDTO.getCaptcha()), LogDesensitizeUtil.desensitizePassword(forgetPasswordDTO.getPassword()));
         return userService.forgetPassword(forgetPasswordDTO);
 
     }
 
+    /**
+     * 重置密码
+     * @param resetPasswordDTO 重置密码参数 DTO
+     * @return BaseResponse<Void> 无返回值
+     */
+    @PostMapping("/reset")
+    public BaseResponse<Void> resetPassword(@RequestBody @Valid ResetPasswordDTO resetPasswordDTO) {
+        log.info("用户重置密码：oldPassword={}, newPassword={}, confirmNewPassword={}", LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getOldPassword()), LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getNewPassword()), LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getConfirmNewPassword()));
+        return userService.resetPassword(resetPasswordDTO);
+    }
 
 
 
