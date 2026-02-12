@@ -18,10 +18,8 @@ import com.xkb.couple.pojo.vo.UserVO;
 import com.xkb.couple.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
-
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 /**
@@ -38,6 +36,10 @@ public class UserServiceImpl implements UserService {
     private final MailUtil mailUtil;
     private final CaptchaUtil captchaUtil;
 
+    // BCrypt 密码编码器
+    private static final BCryptPasswordEncoder  bcrypt = new BCryptPasswordEncoder();
+
+
     @Override
     public BaseResponse<LoginResponseVO> login(PasswordLoginDTO passwordLoginDTO) {
         // 1. 校验参数
@@ -52,10 +54,9 @@ public class UserServiceImpl implements UserService {
             log.info("用户登录失败(用户不存在)：email={}", LogDesensitizeUtil.desensitizeEmail(passwordLoginDTO.getEmail()));
             return BaseResponse.fail(ErrorCodeEnum.USER_NOT_EXIST);
         }
-        // 3. 校验密码(md5)
-        // 密码md5加密
-        String password = DigestUtils.md5DigestAsHex(passwordLoginDTO.getPassword().getBytes());
-        if (!user.getPassword().equals(password)) {
+        // 3. 校验密码(bcrypt)
+        // 密码bcrypt加密
+        if (!bcrypt.matches(passwordLoginDTO.getPassword(), user.getPassword())) {
             log.info("用户登录失败(密码错误)：email={}, password={}", LogDesensitizeUtil.desensitizeEmail(passwordLoginDTO.getEmail()), LogDesensitizeUtil.desensitizePassword(passwordLoginDTO.getPassword()));
             return BaseResponse.fail(ErrorCodeEnum.USER_PASSWORD_ERROR);
         }
@@ -146,7 +147,7 @@ public class UserServiceImpl implements UserService {
         }
         //4.将用户插入数据库TODO 差一个头像上传接口
         userMapper.insert(User.builder()
-                .password(DigestUtils.md5DigestAsHex(registerDTO.getPassword().getBytes()))
+                .password(bcrypt.encode(registerDTO.getPassword()))
                 .nickname(registerDTO.getNickname())
                 .avatar(registerDTO.getAvatar())
                 .hasCouple(UserConstans.UserEnum.FEMALE.getValue())
@@ -293,7 +294,7 @@ public class UserServiceImpl implements UserService {
             return BaseResponse.fail(ErrorCodeEnum.USER_NOT_EXIST);
         }
         // 更新用户密码
-        user.setPassword(DigestUtils.md5DigestAsHex(forgetPasswordDTO.getPassword().getBytes(StandardCharsets.UTF_8)));
+        user.setPassword(bcrypt.encode(forgetPasswordDTO.getPassword()));
         user.setUpdateTime(LocalDateTime.now());
         userMapper.updateById(user);
         return BaseResponse.success();
