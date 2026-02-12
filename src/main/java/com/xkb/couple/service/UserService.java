@@ -6,6 +6,7 @@ import com.xkb.couple.pojo.dto.RegisterDTO;
 import com.xkb.couple.pojo.vo.LoginResponseVO;
 import com.xkb.couple.pojo.vo.UserVO;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * 用户服务接口
@@ -37,16 +38,12 @@ public interface UserService {
      */
     BaseResponse<UserVO> getUserInfo(Long id);
 
+
     /**
-     * 获取注册验证码
+     * 获取验证码
      * @param email 邮箱
+     * @param type 验证码类型
      * @return BaseResponse<String> 验证码
      */
-    BaseResponse<String> getRegisterCaptcha(@Email String email);
-     /**
-     * 获取忘记密码验证码
-     * @param email 邮箱
-     * @return BaseResponse<String> 验证码
-     */
-    BaseResponse<String> getForgetCaptcha(@Email String email);
+    BaseResponse<String> getCaptcha(@Email String email, @NotNull String type);
 }

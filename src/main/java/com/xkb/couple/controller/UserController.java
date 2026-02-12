@@ -9,6 +9,7 @@ import com.xkb.couple.pojo.vo.UserVO;
 import com.xkb.couple.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -55,23 +56,18 @@ public class UserController {
     }
 
     /**
-     * 获取注册验证码
+     * 获取验证码
      * @param email 邮箱
+     * @param type 验证码类型：register（注册）、forget（忘记密码）、login（登录）
+     * @return BaseResponse<String> 验证码id
      */
-    @GetMapping("/captcha/register")
-    public BaseResponse<String> getRegisterCaptcha(@RequestParam @Email String email) {
-        return userService.getRegisterCaptcha(email);
+    @GetMapping("/captcha")
+    public BaseResponse<String> getCaptcha(@RequestParam @Email String email,
+                                           @RequestParam @NotNull String type) {
+        return userService.getCaptcha(email, type);
     }
 
-    /**
-     * 获取忘记密码验证码
-     * @param email 邮箱
-     */
-    @GetMapping("/captcha/forget")
-    public BaseResponse<String> getForgetCaptcha(@RequestParam @Email String email) {
-        return userService.getForgetCaptcha(email);
 
 
 
-}
 }

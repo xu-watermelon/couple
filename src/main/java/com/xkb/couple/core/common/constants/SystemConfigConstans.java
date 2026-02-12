@@ -26,4 +26,18 @@ public class SystemConfigConstans {
      * 邮箱正则表达式
      */
     public static final String EMAIL_REGEX = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
+
+    /**
+     * 验证码类型：注册
+     */
+    public static final String CAPTCHA_TYPE_REGISTER = "register";
+    /**
+     * 验证码类型：忘记密码
+     */
+    public static final String CAPTCHA_TYPE_FORGET = "forget";
+    /**
+     * 验证码类型：登录
+     */
+    public static final String CAPTCHA_TYPE_LOGIN = "login";
+
 }
