@@ -21,4 +21,9 @@ public class SystemConfigConstans {
      * Token脱敏长度：日志中只显示Token的前N个字符
      */
     public static final int TOKEN_MASK_LENGTH = 20;
+
+    /**
+     * 邮箱正则表达式
+     */
+    public static final String EMAIL_REGEX = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
 }

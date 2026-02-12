@@ -63,7 +63,7 @@ public enum ErrorCodeEnum {
     /**
      * 邮件发送失败
      */
-    MAIL_SEND_ERROR("1012", "邮件发送失败"),
+    MAIL_SEND_FAILED("1012", "邮件发送失败"),
     /**
      * 邮件内容为空
      */
@@ -85,7 +85,15 @@ public enum ErrorCodeEnum {
      */
     CAPTCHA_ERROR("1017", "验证码错误"),
 
-    ;
+    /**
+     * 邮箱格式错误
+     */
+    EMAIL_FORMAT_ERROR("1018", "邮箱格式错误"),
+
+     /**
+     * 验证码已存在
+     */
+     CAPTCHA_EXISTS("1019", "验证码已发送,请稍后重试");
 
 
 

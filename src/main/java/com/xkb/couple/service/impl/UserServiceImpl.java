@@ -2,6 +2,7 @@ package com.xkb.couple.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.xkb.couple.core.common.constants.ErrorCodeEnum;
+import com.xkb.couple.core.common.constants.SystemConfigConstans;
 import com.xkb.couple.core.common.exception.BusinessException;
 import com.xkb.couple.core.common.resp.BaseResponse;
 import com.xkb.couple.core.constants.UserConstans;
@@ -13,12 +14,14 @@ import com.xkb.couple.pojo.entity.User;
 import com.xkb.couple.pojo.vo.LoginResponseVO;
 import com.xkb.couple.pojo.vo.UserVO;
 import com.xkb.couple.service.UserService;
+import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.time.LocalDateTime;
+import java.util.regex.Pattern;
 
 /**
  * 用户服务实现类
@@ -169,18 +172,28 @@ public class UserServiceImpl implements UserService {
 
     /**
      * @param email 邮箱
-     * @return 验证码id
+     * @return
      */
     @Override
-    public BaseResponse<String> getCaptcha(String email) {
-        if (email == null) {
-            log.info("获取验证码失败(邮箱为空)：email={}", (Object) null);
+    public BaseResponse<String> getRegisterCaptcha(@Email String email) {
+        // 1. 空值检查（必要）
+        if (email == null || email.isEmpty()) {
+            log.info("获取验证码失败(邮箱为空)");
             return BaseResponse.fail(ErrorCodeEnum.EMAIL_EMPTY);
         }
+
+        // 2. 邮箱格式检查（可选，如果Controller层已验证）
+        if (!Pattern.matches(SystemConfigConstans.EMAIL_REGEX, email)) {
+            log.info("获取验证码失败(邮箱格式错误)：email={}", LogDesensitizeUtil.desensitizeEmail(email));
+            return BaseResponse.fail(ErrorCodeEnum.EMAIL_FORMAT_ERROR);
+        }
         CaptchaUtil.CaptchaResult captchaResult = captchaUtil.generateCaptcha(email);
-        mailUtil.sendMail(email, captchaResult.getCaptcha());
+        mailUtil.sendRegisterMail(email, captchaResult.getCaptcha());
         return BaseResponse.success(captchaResult.getCaptchaId());
     }
+
+
+
 }
 
 

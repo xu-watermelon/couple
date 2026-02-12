@@ -8,6 +8,7 @@ import com.xkb.couple.pojo.vo.LoginResponseVO;
 import com.xkb.couple.pojo.vo.UserVO;
 import com.xkb.couple.service.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -54,11 +55,14 @@ public class UserController {
     }
 
     /**
-     * 获取验证码
+     * 获取注册验证码
      * @param email 邮箱
      */
-    @GetMapping("/captcha")
-    public BaseResponse<String> getCaptcha(@RequestParam String email) {
-        return userService.getCaptcha(email);
+    @GetMapping("/register/captcha")
+    public BaseResponse<String> getRegisterCaptcha(@RequestParam @Email String email) {
+        return userService.getRegisterCaptcha(email);
     }
-    }
+
+
+
+}

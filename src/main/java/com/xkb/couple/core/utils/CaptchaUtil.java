@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
  * 验证码工具类
  * @author xuwatermelon
  * @date 2026/02/10
+ * TODO 1.使用队列改造,异步发送验证码邮件2.优化验证码存储格式
  */
 @Slf4j
 @Component
@@ -33,6 +34,8 @@ public class CaptchaUtil {
      * Redis键前缀
      */
     private static final String CAPTCHA_PREFIX = "captcha:";
+
+    private static final String CAPTCHA_EMAIL_PREFIX = "captcha:email:";
 
     /**
      * 验证码长度
@@ -67,21 +70,36 @@ public class CaptchaUtil {
             log.error("验证码生成失败：邮箱为空");
             throw new BusinessException(ErrorCodeEnum.EMAIL_EMPTY);
         }
+        // 2. 检查该邮箱是否已存在未过期的验证码
+        String emailKey = CAPTCHA_EMAIL_PREFIX + email;
+        String existingCaptchaId = redisTemplate.opsForValue().get(emailKey);
 
+        if (existingCaptchaId != null) {
+            log.warn("验证码生成失败：该邮箱已存在未过期的验证码，email={}",
+                    LogDesensitizeUtil.desensitizeEmail(email));
+            throw new BusinessException(ErrorCodeEnum.CAPTCHA_EXISTS);
+        }
         try {
+
+
+            // 3. 使用UUID作为Redis键，提高安全性
+            String captchaId = UUID.randomUUID().toString();
+            String captchaKey = CAPTCHA_PREFIX + captchaId;
+
             // 2. 生成6位数字验证码（使用更安全的SecureRandom）
             SecureRandom random = new SecureRandom();
             int captchaInt = random.nextInt((int) Math.pow(10, CAPTCHA_LENGTH));
             // 确保验证码为6位数字（不足时补零）
             String captcha = String.format("%06d", captchaInt);
 
-            // 3. 使用UUID作为Redis键，提高安全性
-            String captchaId = UUID.randomUUID().toString();
-            String redisKey = CAPTCHA_PREFIX + captchaId;
+
 
             // 4. 存储邮箱和验证码的组合
-            String value = email + ":" + captcha;
-            redisTemplate.opsForValue().set(redisKey, value, captchaExpiration, TimeUnit.SECONDS);
+            String captchaValue = email + ":" + captcha;
+            redisTemplate.opsForValue().set(captchaKey, captchaValue, captchaExpiration, TimeUnit.SECONDS);
+
+            // 6. 存储邮箱与验证码ID的映射，用于防重复生成
+            redisTemplate.opsForValue().set(emailKey, captchaId, captchaExpiration, TimeUnit.SECONDS);
 
             log.info("验证码生成成功：email={}, captchaId={}",
                     LogDesensitizeUtil.desensitizeEmail(email), captchaId);
@@ -119,13 +137,16 @@ public class CaptchaUtil {
 
         try {
             // 2. 构建Redis键
-            String redisKey = CAPTCHA_PREFIX + captchaId;
+            String captchaKey = CAPTCHA_PREFIX + captchaId;
+            String emailKey = CAPTCHA_EMAIL_PREFIX + email;
 
             // 3. 获取并删除验证码（原子操作，防止重复使用）
-            String storedValue = redisTemplate.opsForValue().getAndDelete(redisKey);
+            String storedValue = redisTemplate.opsForValue().getAndDelete(captchaKey);
 
             if (storedValue == null) {
                 log.warn("验证码验证失败：验证码不存在或已过期，captchaId={}", captchaId);
+                // 清理邮箱映射
+                redisTemplate.delete(emailKey);
                 return false;
             }
 
@@ -133,6 +154,8 @@ public class CaptchaUtil {
             String[] parts = storedValue.split(":", 2);
             if (parts.length != 2) {
                 log.error("验证码验证失败：存储格式错误，storedValue={}", storedValue);
+                // 清理邮箱映射
+                redisTemplate.delete(emailKey);
                 return false;
             }
 
@@ -143,6 +166,8 @@ public class CaptchaUtil {
             boolean isValid = storedEmail.equals(email) && storedCaptcha.equals(captcha);
 
             if (isValid) {
+                // 验证成功，清理邮箱映射
+                redisTemplate.delete(emailKey);
                 log.info("验证码验证成功：email={}, captchaId={}",
                         LogDesensitizeUtil.desensitizeEmail(email), captchaId);
             } else {

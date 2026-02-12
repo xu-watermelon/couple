@@ -38,8 +38,11 @@ couple:
     # 从application-secret.properties引用
     secret: ${couple.jwt.secret}
     expiration: 9999999999  # 过期时间，单位：秒
+#  验证码
   captcha:
-    expiration: 600  # 过期时间，单位：秒
-#  验证码配置
+    expiration: 300  # 过期时间，单位：秒
+#  邮件配置
   mail:
-    from: ${couple.mail.from}
+    fromEmail: ${couple.mail.fromEmail}
+    fromName: 情侣小程序平台
+
