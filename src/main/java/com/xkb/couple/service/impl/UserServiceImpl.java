@@ -77,10 +77,7 @@ public class UserServiceImpl implements UserService {
         return BaseResponse.success(loginResponseVO);
     }
 
-    /**
-     * @param captchaLoginDTO 登录参数 DTO
-     * @return
-     */
+
     @Override
     public BaseResponse<LoginResponseVO> loginByCaptcha(CaptchaLoginDTO captchaLoginDTO) {
         // 1. 校验参数
@@ -216,14 +213,6 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    /**
-     * @param email 邮箱
-     * @param type  验证码类型
-     *1. register 注册验证码
-     *2. forget 忘记密码验证码
-     *3. login 登录验证码
-     * @return 验证码ID（用于验证）
-     */
     @Override
     public BaseResponse<String> getCaptcha(String email, String type) {
 
@@ -251,10 +240,7 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    /**
-     * @param forgetPasswordDTO 忘记密码参数 DTO
-     * @return BaseResponse<Void> 无返回值
-     */
+
     @Override
     public BaseResponse<Void> forgetPassword(ForgetPasswordDTO forgetPasswordDTO) {
         if (forgetPasswordDTO == null) {
@@ -297,31 +283,28 @@ public class UserServiceImpl implements UserService {
         return BaseResponse.success();
     }
 
-    /**
-     * @param resetPasswordDTO 重置密码参数 DTO
-     * @return BaseResponse<Void> 无返回值
-     */
+
     @Override
-    public BaseResponse<Void> resetPassword(ResetPasswordDTO resetPasswordDTO) {
+    public BaseResponse<Void> updatePassword(UpdatePasswordDTO updatePasswordDTO) {
         // 1.参数校验
         // 校验参数是否为空
-        if (resetPasswordDTO == null) {
-            log.info("重置密码失败(参数为空)：resetPasswordDTO={}", (Object) null);
+        if (updatePasswordDTO == null) {
+            log.info("修改密码失败(参数为空)：updatePasswordDTO={}", (Object) null);
             return BaseResponse.fail(ErrorCodeEnum.PARAMS_ERROR);
         }
         // 校验密码是否为空
-       if (resetPasswordDTO.getOldPassword() == null || resetPasswordDTO.getNewPassword() == null || resetPasswordDTO.getConfirmNewPassword() == null) {
-           log.info("重置密码失败(密码为空)：oldPassword={}, newPassword={}, confirmNewPassword={}", LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getOldPassword()), LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getNewPassword()), LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getConfirmNewPassword()));
+       if (updatePasswordDTO.getOldPassword() == null || updatePasswordDTO.getNewPassword() == null || updatePasswordDTO.getConfirmNewPassword() == null) {
+           log.info("重置密码失败(密码为空)：oldPassword={}, newPassword={}, confirmNewPassword={}", LogDesensitizeUtil.desensitizePassword(updatePasswordDTO.getOldPassword()), LogDesensitizeUtil.desensitizePassword(updatePasswordDTO.getNewPassword()), LogDesensitizeUtil.desensitizePassword(updatePasswordDTO.getConfirmNewPassword()));
            return BaseResponse.fail(ErrorCodeEnum.EMAIL_EMPTY);
        }
        //检验旧密码和新密码是否一致
-        if (resetPasswordDTO.getOldPassword().equals(resetPasswordDTO.getNewPassword())) {
-            log.info("重置密码失败(旧密码和新密码一致)：oldPassword={}, newPassword={}", LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getOldPassword()), LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getNewPassword()));
+        if (updatePasswordDTO.getOldPassword().equals(updatePasswordDTO.getNewPassword())) {
+            log.info("重置密码失败(旧密码和新密码一致)：oldPassword={}, newPassword={}", LogDesensitizeUtil.desensitizePassword(updatePasswordDTO.getOldPassword()), LogDesensitizeUtil.desensitizePassword(updatePasswordDTO.getNewPassword()));
             return BaseResponse.fail(ErrorCodeEnum.OLD_PASSWORD_EQUAL_NEW_PASSWORD);
         }
         // 检验新密码和确认新密码是否一致
-       if (!resetPasswordDTO.getNewPassword().equals(resetPasswordDTO.getConfirmNewPassword())) {
-           log.info("重置密码失败(两次密码不一致)：newPassword={}, confirmNewPassword={}", LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getNewPassword()), LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getConfirmNewPassword()));
+       if (!updatePasswordDTO.getNewPassword().equals(updatePasswordDTO.getConfirmNewPassword())) {
+           log.info("重置密码失败(两次密码不一致)：newPassword={}, confirmNewPassword={}", LogDesensitizeUtil.desensitizePassword(updatePasswordDTO.getNewPassword()), LogDesensitizeUtil.desensitizePassword(updatePasswordDTO.getConfirmNewPassword()));
            return BaseResponse.fail(ErrorCodeEnum.PASSWORD_NOT_MATCH);
        }
        // 2.校验旧密码是否正确
@@ -331,11 +314,11 @@ public class UserServiceImpl implements UserService {
            return BaseResponse.fail(ErrorCodeEnum.USER_NOT_EXIST);
        }
        //检验旧密码是否正确
-       if (!bcrypt.matches(resetPasswordDTO.getOldPassword(), user.getPassword())) {
-           log.info("重置密码失败(旧密码错误)：oldPassword={}", LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getOldPassword()));
+       if (!bcrypt.matches(updatePasswordDTO.getOldPassword(), user.getPassword())) {
+           log.info("重置密码失败(旧密码错误)：oldPassword={}", LogDesensitizeUtil.desensitizePassword(updatePasswordDTO.getOldPassword()));
            return BaseResponse.fail(ErrorCodeEnum.USER_PASSWORD_ERROR);
        }
-       user.setPassword(bcrypt.encode(resetPasswordDTO.getNewPassword()));
+       user.setPassword(bcrypt.encode(updatePasswordDTO.getNewPassword()));
        user.setUpdateTime(LocalDateTime.now());
        userMapper.updateById(user);
         return BaseResponse.success();

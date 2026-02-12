@@ -89,14 +89,14 @@ public class UserController {
     }
 
     /**
-     * 重置密码
-     * @param resetPasswordDTO 重置密码参数 DTO
+     * 修改密码
+     * @param updatePasswordDTO 修改密码参数 DTO
      * @return BaseResponse<Void> 无返回值
      */
-    @PostMapping("/reset")
-    public BaseResponse<Void> resetPassword(@RequestBody @Valid ResetPasswordDTO resetPasswordDTO) {
-        log.info("用户重置密码：oldPassword={}, newPassword={}, confirmNewPassword={}", LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getOldPassword()), LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getNewPassword()), LogDesensitizeUtil.desensitizePassword(resetPasswordDTO.getConfirmNewPassword()));
-        return userService.resetPassword(resetPasswordDTO);
+    @PostMapping("/update")
+    public BaseResponse<Void> updatePassword(@RequestBody @Valid UpdatePasswordDTO updatePasswordDTO) {
+        log.info("用户修改密码：oldPassword={}, newPassword={}, confirmNewPassword={}", LogDesensitizeUtil.desensitizePassword(updatePasswordDTO.getOldPassword()), LogDesensitizeUtil.desensitizePassword(updatePasswordDTO.getNewPassword()), LogDesensitizeUtil.desensitizePassword(updatePasswordDTO.getConfirmNewPassword()));
+        return userService.updatePassword(updatePasswordDTO);
     }
 
 

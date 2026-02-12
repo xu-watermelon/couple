@@ -60,9 +60,9 @@ public interface UserService {
      **/
     BaseResponse<Void> forgetPassword(ForgetPasswordDTO forgetPasswordDTO);
     /**
-     * 重置密码
-     * @param resetPasswordDTO 重置密码参数 DTO
+     * 修改密码
+     * @param updatePasswordDTO 修改密码参数 DTO
      * @return BaseResponse<Void> 无返回值
      **/
-    BaseResponse<Void> resetPassword(@Valid ResetPasswordDTO resetPasswordDTO);
+    BaseResponse<Void> updatePassword(@Valid UpdatePasswordDTO updatePasswordDTO);
 }

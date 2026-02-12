@@ -3,7 +3,7 @@ package com.xkb.couple.pojo.dto;
 import lombok.Data;
 
 @Data
-public class ResetPasswordDTO {
+public class UpdatePasswordDTO {
     /**
      * 旧密码
      */
