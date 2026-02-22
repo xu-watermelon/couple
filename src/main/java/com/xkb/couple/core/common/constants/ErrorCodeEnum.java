@@ -99,7 +99,15 @@ public enum ErrorCodeEnum {
      /**
      * 验证码已存在
      */
-     CAPTCHA_EXISTS("1019", "验证码已发送,请稍后重试");
+     CAPTCHA_EXISTS("1019", "验证码已发送,请稍后重试"),
+    /**
+     * 用户已绑定情侣
+     */
+    USER_HAS_COUPLE("1020", "用户已绑定情侣"),
+     /**
+     * 用户性别错误
+     */
+    USER_GENDER_ERROR("1021", "用户性别错误");
 
 
 

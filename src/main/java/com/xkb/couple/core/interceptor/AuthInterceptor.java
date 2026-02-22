@@ -21,6 +21,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 登录拦截器
@@ -45,8 +46,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        // 2. 配置跨域头（解决前端无法读取响应头问题）
-        setCorsHeaders(response);
+
 
         // 3. 获取并处理Token
         String token = request.getHeader(SystemConfigConstans.HTTP_AUTHORIZATION);
@@ -109,17 +109,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         log.debug("请求[{}]完成，已清理ThreadLocal", request.getRequestURI());
     }
 
-    /**
-     * 设置跨域响应头
-     */
-    private void setCorsHeaders(HttpServletResponse response) {
-        // 生产环境建议指定具体域名
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", SystemConfigConstans.HTTP_AUTHORIZATION + ", Content-Type");
-        response.setHeader("Access-Control-Expose-Headers", SystemConfigConstans.HTTP_AUTHORIZATION);
-        response.setHeader("Access-Control-Max-Age", "3600");
-    }
+
 
     /**
      * 构建失败响应
